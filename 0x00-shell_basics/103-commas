@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -a1p | grep -E "^\.{0,2}/?[A-Za-z0-9]*$" | sed -z 's/\n/, /g; s|/$|/, |g; s/,$/\n/'
+ls -p | sort -d -k1.2 | tr '\n' ',' | sed 's/,$/\n/'
