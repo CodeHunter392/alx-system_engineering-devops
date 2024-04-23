@@ -1,21 +1,37 @@
 #!/usr/bin/python3
+
 """
-    Uses the fake API to get an employer
+Python script that, using a REST API, for a given employee ID,
+returns information about his/her TODO list progress.
 """
-import requests
+
+from requests import get
 from sys import argv
 
+
 if __name__ == "__main__":
-    id_em = argv[1]
-    url_employ = "https://jsonplaceholder.typicode.com/users/{}".format(id_em)
-    url_todos = url_employ + "/todos"
-    r_employ = requests.get(url_employ).json()
-    r_todos = requests.get(url_todos).json()
-    name = r_employ.get("name")
-    total_num_task = r_todos
-    done_task = [task for task in r_todos if task.get("completed")]
-    output = "Employee {} is done with tasks({}/{}):".format(
-                name, len(done_task), len(total_num_task))
-    for task in done_task:
-        output += "\n\t " + task.get("title")
-    print(output)
+    response = get('https://jsonplaceholder.typicode.com/todos/')
+    data = response.json()
+    completed = 0
+    total = 0
+    tasks = []
+    response2 = get('https://jsonplaceholder.typicode.com/users')
+    data2 = response2.json()
+
+    for i in data2:
+        if i.get('id') == int(argv[1]):
+            employee = i.get('name')
+
+    for i in data:
+        if i.get('userId') == int(argv[1]):
+            total += 1
+
+            if i.get('completed') is True:
+                completed += 1
+                tasks.append(i.get('title'))
+
+    print("Employee {} is done with tasks({}/{}):".format(employee, completed,
+                                                          total))
+
+    for i in tasks:
+        print("\t {}".format(i))
