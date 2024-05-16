@@ -1,35 +1,13 @@
-# This Puppet manifest optimizes Nginx configuration to handle higher load by adjusting worker processes and connections.
+# Increases the amount of traffic an Nginx server can handle.
 
-exec { 'optimize_nginx':
-  command => 'echo "worker_processes auto;
-               events {
-                   worker_connections 1024;
-               }
-               http {
-                   include       mime.types;
-                   default_type  application/octet-stream;
-                   sendfile        on;
-                   keepalive_timeout 65;
-                   server {
-                       listen       80;
-                       server_name  localhost;
+# Increase the ULIMIT of the default file
+exec { 'fix--for-nginx':
+  command => 'sed -i "s/15/4096/" /etc/default/nginx',
+  path    => '/usr/local/bin/:/bin/'
+} ->
 
-                       location / {
-                           root   /usr/share/nginx/html;
-                           index  index.html index.htm;
-                       }
-
-                       error_page   500 502 503 504  /50x.html;
-                       location = /50x.html {
-                           root   /usr/share/nginx/html;
-                       }
-                   }
-               }" > /etc/nginx/nginx.conf && systemctl restart nginx',
-  path    => ['/bin', '/usr/bin'],
-}
-
-service { 'nginx':
-  ensure => 'running',
-  enable => true,
-  require => Exec['optimize_nginx'],
+# Restart Nginx
+exec { 'nginx-restart':
+  command => 'nginx restart',
+  path    => '/etc/init.d/'
 }

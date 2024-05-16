@@ -1,22 +1,13 @@
-# This Puppet manifest increases the limit of open files for the holberton user.
+# Enable the user holberton to login and open files without error.
 
-exec { 'increase_file_limits':
-  command => 'echo "* soft nofile 65536
-* hard nofile 65536
-holberton soft nofile 65536
-holberton hard nofile 65536" > /etc/security/limits.d/90-holberton.conf &&
-            echo "session required pam_limits.so" >> /etc/pam.d/common-session',
-  path    => ['/bin', '/usr/bin'],
+# Increase hard file limit for Holberton user.
+exec { 'increase-hard-file-limit-for-holberton-user':
+  command => 'sed -i "/holberton hard/s/5/50000/" /etc/security/limits.conf',
+  path    => '/usr/local/bin/:/bin/'
 }
 
-exec { 'apply_limits':
-  command => 'ulimit -n 65536',
-  path    => ['/bin', '/usr/bin'],
-  require => Exec['increase_file_limits'],
-}
-
-service { 'procps':
-  ensure => 'running',
-  enable => true,
-  subscribe => Exec['apply_limits'],
+# Increase soft file limit for Holberton user.
+exec { 'increase-soft-file-limit-for-holberton-user':
+  command => 'sed -i "/holberton soft/s/4/50000/" /etc/security/limits.conf',
+  path    => '/usr/local/bin/:/bin/'
 }
